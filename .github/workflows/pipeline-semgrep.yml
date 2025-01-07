@@ -1,0 +1,21 @@
+name: "Semgrep Scan"
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  semgrep-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4  
+      - name: Run a Semgrep Scan
+        run: |
+          python3 -m pip install semgrep
+          semgrep scan --include="juice-shop/*" --metrics=off --config="p/typescript" --config="p/default" --config="p/owasp-top-ten" --config="p/cwe-top-25" --config="p/r2c-security-audit" --config="p/owasp-top-ten" --config="p/command-injection" --config="p/secrets" --config="p/gitleaks" --config="p/security-code-scan" --json --json-output=semgrep-sast-report.json
+      - name: Archive Semgrep Report  
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-sast-report
+          path: ./semgrep-sast-report.json
